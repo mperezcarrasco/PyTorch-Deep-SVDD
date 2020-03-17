@@ -3,6 +3,7 @@ from torch import optim
 import torch.nn.functional as F
 
 import numpy as np
+from barbar import Bar
 
 from model import autoencoder, network
 
@@ -26,19 +27,19 @@ class TrainerDeepSVDD:
         ae = autoencoder().to(self.device)
         ae.apply(weights_init_normal)
         optimizer = optim.Adam(ae.parameters(), lr=self.args.lr_ae,
-                               weight_decay=self.args.weight_decay)
+                               weight_decay=self.args.weight_decay_ae)
         scheduler = optim.lr_scheduler.MultiStepLR(optimizer, 
                     milestones=self.args.lr_milestones, gamma=0.1)
         
         ae.train()
         for epoch in range(self.args.num_epochs_ae):
             total_loss = 0
-            for x, _ in self.train_loader:
+            for x, _ in Bar(self.train_loader):
                 x = x.float().to(self.device)
                 
                 optimizer.zero_grad()
                 x_hat = ae(x)
-                reconst_loss = F.mse_loss(x_hat, x, reduction='mean')
+                reconst_loss = torch.mean(torch.sum((x_hat - x) ** 2, dim=tuple(range(1, x_hat.dim()))))
                 reconst_loss.backward()
                 optimizer.step()
                 
@@ -92,12 +93,12 @@ class TrainerDeepSVDD:
         net.train()
         for epoch in range(self.args.num_epochs):
             total_loss = 0
-            for x, _ in self.train_loader:
+            for x, _ in Bar(self.train_loader):
                 x = x.float().to(self.device)
 
                 optimizer.zero_grad()
                 z = net(x)
-                loss = F.mse_loss(z, c, reduction='mean')
+                loss = torch.mean(torch.sum((z - c) ** 2, dim=1))
                 loss.backward()
                 optimizer.step()
 

@@ -18,6 +18,8 @@ if __name__ == '__main__':
                         help='learning rate')
     parser.add_argument('--weight_decay', type=float, default=0.5e-6,
                         help='Weight decay hyperparameter for the L2 regularization')
+    parser.add_argument('--weight_decay_ae', type=float, default=0.5e-3,
+                        help='Weight decay hyperparameter for the L2 regularization')
     parser.add_argument('--lr_ae', type=float, default=1e-4,
                         help='learning rate for autoencoder')
     parser.add_argument('--lr_milestones', type=list, default=[50],
