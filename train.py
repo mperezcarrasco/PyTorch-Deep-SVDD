@@ -25,7 +25,8 @@ class TrainerDeepSVDD:
         """ Pretraining the weights for the deep SVDD network using autoencoder"""
         ae = autoencoder().to(self.device)
         ae.apply(weights_init_normal)
-        optimizer = optim.Adam(ae.parameters(), lr=self.args.lr_ae)
+        optimizer = optim.Adam(ae.parameters(), lr=self.args.lr_ae,
+                               weight_decay=self.args.weight_decay)
         scheduler = optim.lr_scheduler.MultiStepLR(optimizer, 
                     milestones=self.args.lr_milestones, gamma=0.1)
         
@@ -43,6 +44,8 @@ class TrainerDeepSVDD:
                 
                 total_loss += reconst_loss.item()
             scheduler.step()
+            print('Pretraining Autoencoder... Epoch: {}, Loss: {:.3f}'.format(
+                   epoch, total_loss/len(self.train_loader)))
         self.save_weights_for_DeepSVDD(ae, self.train_loader) 
     
 
@@ -76,7 +79,7 @@ class TrainerDeepSVDD:
         if self.args.pretrain==True:
             state_dict = torch.load('weights/pretrained_parameters.pth')
             net.load_state_dict(state_dict['net_dict'])
-            c = torc.Tensor(state_dict['center']).to(device)
+            c = torch.Tensor(state_dict['center']).to(self.device)
         else:
             net.apply(weights_init_normal)
             c = torch.randn(n_classes, z_dim).to(self.device)
@@ -87,7 +90,7 @@ class TrainerDeepSVDD:
                     milestones=self.args.lr_milestones, gamma=0.1)
 
         net.train()
-        for epoch in self.args.n_epochs:
+        for epoch in range(self.args.num_epochs):
             total_loss = 0
             for x, _ in self.train_loader:
                 x = x.float().to(self.device)
@@ -102,6 +105,8 @@ class TrainerDeepSVDD:
             scheduler.step()
             print('Training Deep SVDD... Epoch: {}, Loss: {:.3f}'.format(
                    epoch, total_loss/len(self.train_loader)))
+        self.net = net
+        self.c = c
                 
 
         
