@@ -20,8 +20,7 @@ class network(nn.Module):
         x = self.conv2(x)
         x = self.pool(F.leaky_relu(self.bn2(x)))
         x = x.view(x.size(0), -1)
-        x = self.fc1(x)
-        return x
+        return self.fc1(x)
 
 
 class autoencoder(nn.Module):
@@ -30,14 +29,12 @@ class autoencoder(nn.Module):
         self.z_dim = z_dim
         self.pool = nn.MaxPool2d(2, 2)
 
-        # Encoder (must match the Deep SVDD network above)
         self.conv1 = nn.Conv2d(1, 8, 5, bias=False, padding=2)
         self.bn1 = nn.BatchNorm2d(8, eps=1e-04, affine=False)
         self.conv2 = nn.Conv2d(8, 4, 5, bias=False, padding=2)
         self.bn2 = nn.BatchNorm2d(4, eps=1e-04, affine=False)
         self.fc1 = nn.Linear(4 * 7 * 7, z_dim, bias=False)
 
-        # Decoder
         self.deconv1 = nn.ConvTranspose2d(2, 4, 5, bias=False, padding=2)
         self.bn3 = nn.BatchNorm2d(4, eps=1e-04, affine=False)
         self.deconv2 = nn.ConvTranspose2d(4, 8, 5, bias=False, padding=3)

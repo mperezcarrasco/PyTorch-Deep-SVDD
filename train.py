@@ -52,15 +52,15 @@ class TrainerDeepSVDD:
 
     def save_weights_for_DeepSVDD(self, model, dataloader):
         """Initialize Deep SVDD weights using the encoder weights of the pretrained autoencoder."""
-        c = self.get_c(model, dataloader)
+        c = self.set_c(model, dataloader)
         net = network().to(self.device)
-        state_dict = model.state_dict()
-        net.load_state_dict(state_dict, strict=False)
+        state_dict = model.encode.state_dict()
+        net.load_state_dict(state_dict)
         torch.save({'center': c.cpu().data.numpy().tolist(),
                     'net_dict': net.state_dict()}, 'weights/pretrained_parameters.pth')
     
 
-    def get_c(self, model, dataloader):
+    def set_c(self, model, dataloader, eps=0.1):
         """Initializing the center for the hypersphere"""
         model.eval()
         z_ = []
@@ -70,7 +70,10 @@ class TrainerDeepSVDD:
                 z = model.encode(x)
                 z_.append(z.detach())
         z_ = torch.cat(z_)
-        return torch.mean(z_, dim=0)
+        c = torch.mean(z_, dim=0)
+        c[(abs(c) < eps) & (c < 0)] = -eps
+        c[(abs(c) < eps) & (c > 0)] = eps
+        return c
 
 
     def train(self):
@@ -83,7 +86,7 @@ class TrainerDeepSVDD:
             c = torch.Tensor(state_dict['center']).to(self.device)
         else:
             net.apply(weights_init_normal)
-            c = torch.randn(n_classes, z_dim).to(self.device)
+            c = torch.randn(self.args.latent_dim).to(self.device)
         
         optimizer = optim.Adam(net.parameters(), lr=self.args.lr,
                                weight_decay=self.args.weight_decay)

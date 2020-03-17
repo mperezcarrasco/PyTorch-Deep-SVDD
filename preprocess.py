@@ -18,7 +18,10 @@ def get_mnist(args, data_dir='./data/mnist/'):
     
     x_test = (test.data.float()/255.).unsqueeze(1)
     y_test = test.targets
+    y_test[np.where(y_test!=args.normal_class)[0]] = 20
+    y_test[np.where(y_test==args.normal_class)[0]] = 10
+    y_test[np.where(y_test==10)[0]] = 0
+    y_test[np.where(y_test==20)[0]] = 1
     dataloader_test = DataLoader(TensorDataset(x_test, y_test), batch_size=args.batch_size, 
                               shuffle=True, num_workers=0)
-
     return dataloader_train, dataloader_test
