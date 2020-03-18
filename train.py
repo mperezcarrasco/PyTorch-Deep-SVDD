@@ -54,8 +54,8 @@ class TrainerDeepSVDD:
         """Initialize Deep SVDD weights using the encoder weights of the pretrained autoencoder."""
         c = self.set_c(model, dataloader)
         net = network().to(self.device)
-        state_dict = model.encode.state_dict()
-        net.load_state_dict(state_dict)
+        state_dict = model.state_dict()
+        net.load_state_dict(state_dict, strict=False)
         torch.save({'center': c.cpu().data.numpy().tolist(),
                     'net_dict': net.state_dict()}, 'weights/pretrained_parameters.pth')
     

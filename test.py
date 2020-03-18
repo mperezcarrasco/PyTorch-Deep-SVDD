@@ -3,7 +3,7 @@ import torch
 from sklearn.metrics import roc_auc_score
 
 
-def eval(self, net, c, dataloader):
+def eval(net, c, dataloader, device):
     """Testing the Deep SVDD model"""
 
     scores = []
@@ -12,9 +12,9 @@ def eval(self, net, c, dataloader):
     print('Testing...')
     with torch.no_grad():
         for x, y in dataloader:
-            x = x.float().to(self.device)
+            x = x.float().to(device)
             z = net(x)
-            score = torch.mean(torch.sum((z - c) ** 2, dim=1))
+            score = torch.sum((z - c) ** 2, dim=1)
 
             scores.append(score.detach().cpu())
             labels.append(y.cpu())
