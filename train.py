@@ -6,14 +6,8 @@ import numpy as np
 from barbar import Bar
 
 from model import autoencoder, network
+from utils.utils import weights_init_normal
 
-
-def weights_init_normal(m):
-    classname = m.__class__.__name__
-    if classname.find("Conv") != -1 and classname != 'Conv':
-        torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
-    elif classname.find("Linear") != -1:
-        torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
 
 class TrainerDeepSVDD:
     def __init__(self, args, data, device):
