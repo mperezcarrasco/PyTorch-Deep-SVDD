@@ -12,3 +12,13 @@ def weights_init_normal(m):
     elif classname.find('BatchNorm') != -1:
         m.weight.data.normal_(1.0, 0.01)
         m.bias.data.fill_(0)
+
+
+def global_contrast_normalization(x, scale='l1'):
+    """Apply global contrast normalization to tensor. """
+    n_features = int(np.prod(x.shape))
+    mean = torch.mean(x)  # mean over all features (pixels) per sample
+    x -= mean
+    x_scale = torch.mean(torch.abs(x))
+    x /= x_scale
+    return x
