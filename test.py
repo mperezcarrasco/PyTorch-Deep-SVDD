@@ -19,5 +19,5 @@ def eval(net, c, dataloader, device):
             scores.append(score.detach().cpu())
             labels.append(y.cpu())
     labels, scores = torch.cat(labels).numpy(), torch.cat(scores).numpy()
-    print('ROC AUC score: {:.3f}'.format(roc_auc_score(labels, scores)))
+    print('ROC AUC score: {:.2f}'.format(roc_auc_score(labels, scores)*100))
     return labels, scores

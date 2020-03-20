@@ -18,7 +18,7 @@ class TrainerDeepSVDD:
 
     def pretrain(self):
         """ Pretraining the weights for the deep SVDD network using autoencoder"""
-        ae = autoencoder().to(self.device)
+        ae = autoencoder(self.args.latent_dim).to(self.device)
         ae.apply(weights_init_normal)
         optimizer = optim.Adam(ae.parameters(), lr=self.args.lr_ae,
                                weight_decay=self.args.weight_decay_ae)
@@ -47,7 +47,7 @@ class TrainerDeepSVDD:
     def save_weights_for_DeepSVDD(self, model, dataloader):
         """Initialize Deep SVDD weights using the encoder weights of the pretrained autoencoder."""
         c = self.set_c(model, dataloader)
-        net = network().to(self.device)
+        net = network(self.args.latent_dim).to(self.device)
         state_dict = model.state_dict()
         net.load_state_dict(state_dict, strict=False)
         torch.save({'center': c.cpu().data.numpy().tolist(),
