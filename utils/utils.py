@@ -1,22 +1,16 @@
 import torch
-
+import numpy as np
 
 def weights_init_normal(m):
     classname = m.__class__.__name__
     if classname.find("Conv") != -1 and classname != 'Conv':
         torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
-        torch.nn.init.normal_(m.bias.data, 0.0, 0.02)
     elif classname.find("Linear") != -1:
         torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
-        torch.nn.init.normal_(m.bias.data, 0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-        m.weight.data.normal_(1.0, 0.01)
-        m.bias.data.fill_(0)
 
 
-def global_contrast_normalization(x, scale='l1'):
+def global_contrast_normalization(x):
     """Apply global contrast normalization to tensor. """
-    n_features = int(np.prod(x.shape))
     mean = torch.mean(x)  # mean over all features (pixels) per sample
     x -= mean
     x_scale = torch.mean(torch.abs(x))

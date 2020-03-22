@@ -4,8 +4,8 @@
 import torch
 import numpy as np
 from torch.utils import data
-from torchvision import datasets
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
 
 from PIL import Image
 
@@ -14,7 +14,7 @@ from utils.utils import global_contrast_normalization
 
 class MNIST_loader(data.Dataset):
     """This class is needed to processing batches for the dataloader."""
-    def __init__(self, data, target, transform=None):
+    def __init__(self, data, target, transform):
         self.data = data
         self.target = target
         self.transform = transform
@@ -24,8 +24,8 @@ class MNIST_loader(data.Dataset):
         x = self.data[index]
         y = self.target[index]
         if self.transform:
-        	x = Image.fromarray(x)
-        	x = self.transform(x)
+            x = Image.fromarray(x.numpy(), mode='L')
+            x = self.transform(x)
         return x, y
 
     def __len__(self):
@@ -34,15 +34,7 @@ class MNIST_loader(data.Dataset):
 
 
 def get_mnist(args, data_dir='./data/mnist/'):
-    train = datasets.MNIST(root=data_dir, train=True, download=True)
-    test = datasets.MNIST(root=data_dir, train=False, download=True)
-
-    x_train = train.data.float()
-    y_train = train.targets
-
-    x_train = x_train[np.where(y_train==args.normal_class)].unsqueeze(1)
-    y_train = y_train[np.where(y_train==args.normal_class)]
-
+    """get dataloders"""
     # min, max values for each class after applying GCN (as the original implementation)
     min_max = [(-0.8826567065619495, 9.001545489292527),
                 (-0.6661464580883915, 20.108062262467364),
@@ -56,21 +48,28 @@ def get_mnist(args, data_dir='./data/mnist/'):
                 (-0.7369959242164307, 10.697039838804978)]
 
     transform = transforms.Compose([transforms.ToTensor(),
-                                    transforms.Lambda(lambda x: global_contrast_normalization(
-                                                       x, scale='l1')),
+                                    transforms.Lambda(lambda x: global_contrast_normalization(x)),
                                     transforms.Normalize([min_max[args.normal_class][0]],
                                                          [min_max[args.normal_class][1] \
                                                          -min_max[args.normal_class][0]])])
+    train = datasets.MNIST(root=data_dir, train=True, download=True)
+    test = datasets.MNIST(root=data_dir, train=False, download=True)
+
+    x_train = train.data
+    y_train = train.targets
+
+    x_train = x_train[np.where(y_train==args.normal_class)]
+    y_train = y_train[np.where(y_train==args.normal_class)]
                                     
     data_train = MNIST_loader(x_train, y_train, transform)
     dataloader_train = DataLoader(data_train, batch_size=args.batch_size, 
                                   shuffle=True, num_workers=0)
     
-    x_test = (test.data.float()/255.).unsqueeze(1)
+    x_test = test.data
     y_test = test.targets
     y_test[np.where(y_test!=args.normal_class)[0]] = True
     y_test[np.where(y_test==args.normal_class)[0]] = False
-    data_test = MNIST_loader(x_test, y_test.astype('int'), transform)
+    data_test = MNIST_loader(x_test, y_test.long(), transform)
     dataloader_test = DataLoader(data_test, batch_size=args.batch_size, 
                                   shuffle=True, num_workers=0)
     return dataloader_train, dataloader_test
