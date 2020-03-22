@@ -10,9 +10,9 @@ This implementation achieved similar results as the original implementation prov
 | Inlier class     | [Original Pytorch Implementation ](https://github.com/lukasruff/Deep-SVDD-PyTorch) | This implementation  |
 | ------------- |:-------------:| :-------------:|
 | 0 | - | - |
-| 1 | 99.42 \pm 0.06 | 99.47 \pm 0.01 |
+| 1 | 99.42 ± 0.06 | 99.47 ± 0.01 |
 | 2 | - | - |
-| 3 | 90.5 \pm$ 1.48 | 91.05 \pm 0.27 |
+| 3 | 90.5 ± 1.48 | 91.05 ± 0.27 |
 | 4 | - | - |
 | 5 | - | - |
 | 6 | - | - |
