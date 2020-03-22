@@ -4,7 +4,7 @@ This is my Minimal Pytorch implementation of [Deep One-Class Classification](htt
 
 
 # Results
-This implementation achieved similar results as the original implementation provided by the authors.
+This implementation achieves similar results as the original implementation provided by the authors.
 
 
 | Inlier class     | [Original Pytorch Implementation ](https://github.com/lukasruff/Deep-SVDD-PyTorch) | This implementation  |
