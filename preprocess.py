@@ -67,8 +67,7 @@ def get_mnist(args, data_dir='./data/mnist/'):
     
     x_test = test.data
     y_test = test.targets
-    y_test[np.where(y_test!=args.normal_class)[0]] = True
-    y_test[np.where(y_test==args.normal_class)[0]] = False
+    y_test = np.where(y_test==args.normal_class, 0, 1)
     data_test = MNIST_loader(x_test, y_test.long(), transform)
     dataloader_test = DataLoader(data_test, batch_size=args.batch_size, 
                                   shuffle=True, num_workers=0)
