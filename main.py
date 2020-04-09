@@ -28,7 +28,7 @@ if __name__ == '__main__':
                         help="Batch size")
     parser.add_argument('--pretrain', type=bool, default=True,
                         help='Pretrain the network using an autoencoder')
-    parser.add_argument('--latent_dim', type=bool, default=True,
+    parser.add_argument('--latent_dim', type=int, default=32,
                         help='Dimension of the latent variable z')
     parser.add_argument('--normal_class', type=int, default=0,
                         help='Class to be treated as normal. The rest will be considered as anomalous.')
